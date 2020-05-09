@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import TabBarIcon from '../components/TabBarIcon';
 import {
-  AddScreen, HomeScreen, LinksScreen
+  HabitsProgressScreen, HabitsConfigureScreen, ToDoProgressScreen, HabitsEditScreen
 } from '../screens'
 
 const BottomTab = createBottomTabNavigator();
@@ -19,26 +19,26 @@ export default function BottomTabNavigator({ navigation, route }) {
     <BottomTab.Navigator initialRouteName={INITIAL_ROUTE_NAME}>
       <BottomTab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HabitsProgressScreen}
         options={{
-          title: 'Get Started',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-code-working" />,
+          title: 'Today',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-today" />,
         }}
       />
       <BottomTab.Screen
         name="Settings"
-        component={AddScreen}
+        component={HabitsConfigureScreen}
         options={{
-          title: 'Habits',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+          title: 'Configure',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-settings" />,
         }}
       />
       <BottomTab.Screen
-        name="Links"
-        component={LinksScreen}
+        name="History"
+        component={HabitsEditScreen}
         options={{
-          title: 'Resources',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-book" />,
+          title: 'History',
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-analytics" />,
         }}
       />
     </BottomTab.Navigator>
@@ -50,10 +50,10 @@ function getHeaderTitle(route) {
 
   switch (routeName) {
     case 'Home':
-      return 'How to get started';
+      return 'How is your day doing?';
     case 'Settings':
-      return 'Number increment using redux';
-    case 'Links':
-      return 'Links to learn more';
+      return 'How to configure habits?';
+    case 'History':
+      return 'How you performed through time?';
   }
 }
