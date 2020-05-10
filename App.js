@@ -13,6 +13,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
+import { HabitsEditScreen, HabitsTrackScreen } from './screens'
+
 const Stack = createStackNavigator();
 const store = createStore(AppReducer, applyMiddleware(ReduxThunk))
 
@@ -58,6 +60,8 @@ export default function App(props) {
         <NavigationContainer ref={containerRef} initialState={initialNavigationState}>
           <Stack.Navigator>
             <Stack.Screen name="Root" component={BottomTabNavigator} />
+            <Stack.Screen name="editHabit" component={HabitsEditScreen} options={{ title: 'Habit Edit' }} />
+            <Stack.Screen name="trackHabit" component={HabitsTrackScreen} options={{ title: 'Habit Track' }} />
           </Stack.Navigator>
         </NavigationContainer>
       </View>

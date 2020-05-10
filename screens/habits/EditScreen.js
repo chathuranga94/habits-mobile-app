@@ -6,31 +6,48 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import TouchableScale from 'react-native-touchable-scale';
 import { Overlay, Button, Input, ButtonGroup, Card, Text, Icon, ListItem } from 'react-native-elements';
 
-const types = ['Minutes', 'Times']
-const frequencies = ['Daily', 'Weekly', 'Monthly']
+import HABIT_CONSTANTS from './constants';
 
+const types = HABIT_CONSTANTS.TYPES
+const frequencies = HABIT_CONSTANTS.FREQUENCIES
+const weekDays = HABIT_CONSTANTS.WEEK_DAYS
+const monthDays = HABIT_CONSTANTS.MONTH_DAYS
 
 export default function AddScreen(props) {
+  const dispatch = useDispatch();
+  const habitStore = useSelector(state => state.habits);
+  const { isEdit, habitId } = props.route.params;
+
+  console.log(`Rendering EditScreen for HabitId: ${habitId} and Edit: ${isEdit}`);
+  let habit = null;
+  if (isEdit) {
+    habit = habitStore.habits.find(habit => habit.id === habitId)
+  }
+
   const [visible, setVisible] = useState(false);
 
-  const [name, setName] = useState(''); // HANDLE EDIT FLOW!
-  const [units, setUnits] = useState(null); 
-  const [type, setType] = useState(0);
-  const [frequency, setFrequency] = useState(0);
-
-  const dispatch = useDispatch();
-  const counter = useSelector(state => state);
-
+  const [name, setName] = useState(isEdit ? habit.name : '');
+  const [units, setUnits] = useState(isEdit ? habit.units :null); 
+  const [type, setType] = useState(isEdit ? (habit.type === types[0] ? 0 : 1 ): 0);
+  const [frequency, setFrequency] = useState(isEdit ? (habit.frequency === frequencies[0] ? 0 : 1) : 0);
+  const [start, setStart] = useState(1);
 
 
   const toggleOverlay = () => {
     setVisible(!visible);
   };
 
-  console.log(`name : ${name}`)
-  console.log(counter)
-
-
+  const constructFrequency = (frequency, start) => {
+    if (frequency === 0) {
+      return '';
+    } else if (frequency === 1) {
+      return 'on ' + weekDays[start];
+    } else if (frequency === 2) {
+      return 'on ' + monthDays(start); 
+    } else {
+      return '';
+    }
+  }
 
   return (
     <View style={{ flex: 1 }}>
@@ -38,7 +55,7 @@ export default function AddScreen(props) {
 
         <Input
           placeholder='Eg: Read a book.'
-          label='Habit Name'
+          label='Name'
           leftIcon={{ name: 'text-format' }}
           value={name}
           onChangeText={value => setName(value)}
@@ -52,7 +69,7 @@ export default function AddScreen(props) {
 
         <Input
           placeholder='Eg: 20 (minutes, daily)' // TODO: Placeholder by default not number 0
-          label='Habit Units'
+          label='Units'
           leftIcon={{ name: 'av-timer' }}
           value={units}
           onChangeText={value => setUnits(value)} // TODO: Only numeric numbers
@@ -71,6 +88,32 @@ export default function AddScreen(props) {
           buttons={frequencies}
           containerStyle={{ height: 40 }}
         />
+
+        { (frequency === 1) &&
+          <ButtonGroup
+            onPress={(value) => setStart(value)}
+            selectedIndex={start}
+            buttons={weekDays}
+            containerStyle={{ height: 20 }}
+          />
+        }
+        {(frequency === 2) &&
+          <View style={{ flexDirection: "row", flexWrap: 'wrap' }}>
+            <Button
+              title="-"
+              buttonStyle={{height: 20}}
+              disabled={start <= 1}
+              onPress={() => setStart(start - 1)}
+            />
+            <Text>{start}</Text>
+            <Button
+              title="+"
+              buttonStyle={{height: 20}}
+              disabled={start >= 31}
+              onPress={() => setStart(start + 1)}
+            />
+          </View>
+        }
 
         {/*
         <Input
@@ -115,10 +158,8 @@ export default function AddScreen(props) {
           title={name || 'Name Undefined'}
           titleStyle={{ color: 'white', fontWeight: 'bold' }}
           subtitleStyle={{ color: 'white' }}
-          subtitle={
-            (units || '0') + ' ' + (types[type || 0])
-            + ' | ' +
-            (frequencies[frequency || 0])}
+          subtitle={`${(units || '0')} ${(types[type || 0])} | ` +
+            `${(frequencies[frequency || 0])} ${constructFrequency(frequency, start)}`}
           leftAvatar={{ rounded: true, icon: { name: 'home', reverse: true } }}
           containerStyle={{
             marginHorizontal: 16,
@@ -134,9 +175,31 @@ export default function AddScreen(props) {
             color: "white"
           }}
           title="Save Habit"
-          onPress={() => dispatch({ type: "SAVE_HABIT" })
+          onPress={() => dispatch({
+            type: HABIT_CONSTANTS.SAVE_HABIT,
+            payload: {
+              isEdit,
+              habit: { ...habit, name, units,
+                type: type === 0 ? types[0] : types[1],
+                frequency: frequency === 0 ? frequencies[0] : frequencies[1], // TODO HERE?
+                start: frequency !== 0 ? start : null,
+              }
+      }
+    })
+    }
+  />
+
+        {isEdit &&
+        <Button
+          icon={{
+            name: "delete",
+            size: 20,
+            color: "white"
+          }}
+          title="Delete Habit"
+          onPress={() => dispatch({ type: HABIT_CONSTANTS.DELETE_HABIT, payload: { habitId: habit.id } })
           }
-        />
+        />}
 
       </View>
 

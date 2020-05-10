@@ -1,48 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
+import { useSelector } from "react-redux";
 import { StyleSheet, Text, View, Button } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import TouchableScale from 'react-native-touchable-scale';
 import { ListItem, Slider } from 'react-native-elements';
+import HabitManager from './manager'
 
 // const LinearGradient = undefined;
-const list2 = [
-  {
-    name: 'Read',
-    subtitle: '20min',
-    icon: 'home',
-    // avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-    // linearGradientColors: ['#FF9800', '#F44336'],
-    completed: 1,
-    completedIcon: 'done'
-  },
-  {
-    name: 'Spanish',
-    subtitle: '15min',
-    icon: 'language',
-    completed: 0,
-    completedIcon: 'play-arrow'
-  },
-  {
-    name: 'HIIT Exercise',
-    subtitle: '2 times',
-    icon: 'directions-run',
-    completed: 0.5,
-    completedIcon: 'pause-circle-outline',
-  },
-  {
-    name: 'DEV Articles',
-    subtitle: '30 min',
-    icon: 'laptop',
-    completed: 1,
-    completedIcon: 'done'
-  },
-];
-
 
 export default function AddScreen(props) {
-  console.log(props)
+
+  const habitStore = useSelector(state => state.habits);
+  const todayHabits = HabitManager.constructTodayProgress(habitStore.habits, habitStore.habitsHistory);
+
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
@@ -59,7 +31,7 @@ export default function AddScreen(props) {
 
 
       <View style={{ backgroundColor: '#ECEFF1', paddingVertical: 8 }}>
-        {list2.map((l, i) => (
+        {todayHabits.map((l, i) => (
           <ListItem
             component={TouchableScale}
             friction={90}
@@ -71,15 +43,16 @@ export default function AddScreen(props) {
             title={l.name}
             titleStyle={{ color: 'white', fontWeight: 'bold' }}
             subtitleStyle={{ color: 'white' }}
-            subtitle={l.subtitle}
+            subtitle={l.topic}
             chevronColor="white"
             chevron
             containerStyle={{
               marginHorizontal: 16,
               marginVertical: 8,
               borderRadius: 8,
-              backgroundColor: l.completed === 1 ? '#58D68D' : (l.completed === 0) ? '#E74C3C' : '#F1C40F'
+              backgroundColor: l.color
             }}
+            onPress={() => props.navigation.navigate('trackHabit', { habitId: l.id })}
             // style={{ backgroundColor: '#555555'}}
           />
         ))}

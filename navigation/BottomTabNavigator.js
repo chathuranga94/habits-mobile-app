@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import TabBarIcon from '../components/TabBarIcon';
 import {
-  HabitsProgressScreen, HabitsConfigureScreen, ToDoProgressScreen, HabitsEditScreen
+  HabitsProgressScreen, HabitsConfigureScreen, HabitsHistoryScreen
 } from '../screens'
 
 const BottomTab = createBottomTabNavigator();
@@ -35,7 +35,7 @@ export default function BottomTabNavigator({ navigation, route }) {
       />
       <BottomTab.Screen
         name="History"
-        component={HabitsEditScreen}
+        component={HabitsHistoryScreen}
         options={{
           title: 'History',
           tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-analytics" />,

@@ -1,60 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as WebBrowser from 'expo-web-browser';
 import * as React from 'react';
+import { useSelector } from "react-redux";
 import { StyleSheet, Text, View } from 'react-native';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import TouchableScale from 'react-native-touchable-scale';
 import { ListItem, Slider, Icon, Button } from 'react-native-elements';
-
-// const LinearGradient = undefined;
-const list2 = [
-  {
-    name: 'Read',
-    subtitle: '20min',
-    icon: 'home',
-    type: 'daily'
-  },
-  {
-    name: 'Spanish',
-    subtitle: '15min',
-    icon: 'language',
-    type: 'daily'
-  },
-  {
-    name: 'Read',
-    subtitle: '20min',
-    icon: 'home',
-    type: 'daily'
-  },
-  {
-    name: 'Spanish',
-    subtitle: '15min',
-    icon: 'language',
-    type: 'daily'
-  },
-  {
-    name: 'Spanish Review',
-    subtitle: '30min',
-    icon: 'language',
-    type: 'weekly'
-  },
-  {
-    name: 'HIIT Exercise',
-    subtitle: '2 times',
-    icon: 'directions-run',
-    type: 'daily'
-  },
-  {
-    name: 'DEV Articles',
-    subtitle: '30 min',
-    icon: 'laptop',
-    type: 'daily'
-  },
-];
-
+import HabitManager from './manager'
 
 export default function AddScreen(props) {
-  console.log(props)
+  // console.log(props)
+
+  const habitStore = useSelector(state => state.habits);
+
+  console.log(habitStore)
+  const activeHabits = HabitManager.getActiveHabits(habitStore.habits);
 
   return (
     <View style={{ flex: 1 }}>
@@ -72,7 +32,7 @@ export default function AddScreen(props) {
 
 
       <View style={{ backgroundColor: '#ECEFF1', paddingVertical: 8 }}>
-        {list2.map((l, i) => (
+        {activeHabits.map((l, i) => (
           <ListItem
             component={TouchableScale}
             friction={90}
@@ -84,7 +44,7 @@ export default function AddScreen(props) {
             title={l.name}
             titleStyle={{ color: 'white', fontWeight: 'bold' }}
             subtitleStyle={{ color: 'white' }}
-            subtitle={l.subtitle + ' | ' + l.type.toUpperCase() }
+            subtitle={l.units + ' ' + l.type + ' | ' + l.frequency.toUpperCase() }
             // chevronColor="white"
             // chevron
             containerStyle={{
@@ -93,6 +53,7 @@ export default function AddScreen(props) {
               borderRadius: 8,
               backgroundColor: '#58D6D0'
             }}
+            onPress={() => props.navigation.navigate('editHabit', { isEdit: true, habitId: l.id })}
             // style={{ backgroundColor: '#555555'}}
           />
         ))}
@@ -110,6 +71,7 @@ export default function AddScreen(props) {
             color: "white"
           }}
           title="Add Habit"
+          onPress={() => props.navigation.navigate('editHabit', { isEdit: false })}
         />
 
       </View> 
