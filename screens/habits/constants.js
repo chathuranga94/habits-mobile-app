@@ -18,19 +18,20 @@ export default {
     PROGRESS_COLOUR: (percentage) => {
         // https://www.colorhexa.com/58d68d-to-e74c3c => Reverse HSV Gradient
         const ceil = Math.ceil((percentage) / 10) * 10;
+        const opacity = 0.7
 
         switch (ceil) {
-            case 0: return "#e74c3c";
-            case 10: return "#e66f3f";
-            case 20: return "#e49041";
-            case 30: return "#e3af43";
-            case 40: return "#e1cd46";
-            case 50: return "#d6e048";
-            case 60: return "#b8de4b";
-            case 70: return "#9cdd4d";
-            case 80: return "#68da51";
-            case 90: return "#54d958";
-            case 100: return "#58d68d";
+            case 0: return `rgba(255, 0, 0, ${opacity})`;
+            case 10: return `rgba(255, 51, 0, ${opacity})`;
+            case 20: return `rgba(255, 102, 0, ${opacity})`;
+            case 30: return `rgba(255, 153, 0, ${opacity})`;
+            case 40: return `rgba(255, 204, 0, ${opacity})`;
+            case 50: return `rgba(255, 255, 0, ${opacity})`;
+            case 60: return `rgba(204, 255, 0, ${opacity})`;
+            case 70: return `rgba(153, 255, 0, ${opacity})`;
+            case 80: return `rgba(102, 255, 0, ${opacity})`;
+            case 90: return `rgba(51, 255, 0, ${opacity})`;
+            case 100: return `rgba(0, 255, 0, ${opacity})`;
             default: "#808080"; // rgb(128,128,128) + opacity
         }
     }

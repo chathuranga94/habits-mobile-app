@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import { useSelector, useDispatch } from "react-redux";
 import { ScrollView } from 'react-native-gesture-handler';
@@ -19,64 +19,51 @@ export default function AddScreen(props) {
 
   const habitStore = useSelector(state => state.habits);
   const todayHabits = HabitManager.constructTodayProgress(habitStore.habits, habitStore.habitsHistory);
-  console.log(todayHabits)
   const { habitId } = props.route.params;
   const habit = todayHabits.find(h => h.id === habitId)
 
-  console.log(habit)
+  const [completedUnits, setCompletedUnits] = useState(habit.completedUnits || 0);
 
-  const [completeness, setCompleteness] = useState(habit.completeness || 0.0);
+  const completedFraction = (completedUnits && habit.units) ? completedUnits / habit.units : 0.0;
+  const progressValue = parseFloat(completedFraction * 100).toFixed(2)
 
   return (
     <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
-        {/*
-        <Image
-          source={{
-            uri:
-              'https://static.pexels.com/photos/428336/pexels-photo-428336.jpeg',
-          }}
-          style={{
-            width: IMAGE_SIZE,
-            height: IMAGE_SIZE,
-            borderRadius: 10,
-          }}
-        />
-        */}
-
-        <Text h5="true" style={{ textAlign: 'center' }}>{`completeness ${completeness}`}</Text>
-
         <Text h5="true" style={{ textAlign: 'center' }}>{`Goal`}</Text>
-
         <Text h2 style={{ textAlign: 'center', fontWeight: 'bold' }}>{habit.name}</Text>
-
         <Text h4 style={{ textAlign: 'center' }}>{`${habit.units} ${habit.type}`}</Text>
 
-
+        <Card
+          title={`Completed: ${progressValue}%`}
+          containerStyle={{ backgroundColor: getProgressColour(progressValue), borderRadius: 10 }}
+        >
           {
             habit.type === types[0] &&
             <TimerView
               habit={habit}
-              setCompleteness={setCompleteness}
+              setCompletedUnits={setCompletedUnits}
             />
           }
 
-          { 
+          {
             habit.type === types[1] &&
             <CheckBoxView
               habit={habit}
-              setCompleteness={setCompleteness}
+              setCompletedUnits={setCompletedUnits}
             />
           }
 
-
+        </Card>
 
     </ScrollView>
       <View>
-        {/* <Text style={{ textAlign: 'center', fontWeight: 'bold', marginVertical: 5 }}>
+        {/*
+        <Text style={{ textAlign: 'center', fontWeight: 'bold', marginVertical: 5 }}>
           Submit Progress!
-        </Text> */}
+        </Text>
+        */}
         <Button
           icon={{
             name: "save",
@@ -88,7 +75,7 @@ export default function AddScreen(props) {
           title="Save Progress"
           onPress={() => dispatch({
             type: HABIT_CONSTANTS.SAVE_HABIT_PROGRESS,
-            payload: { completeness, habit: habit }
+            payload: { completedUnits, habit: habit }
           })
           }
         />
@@ -99,8 +86,7 @@ export default function AddScreen(props) {
   );
 }
 
-
-function CheckBoxView({ habit, setCompleteness }) {
+function CheckBoxView({ habit, setCompletedUnits }) {
 
   const chunkcedCheckboxes = () => {
     const goalUnits = habit.units;
@@ -118,9 +104,7 @@ function CheckBoxView({ habit, setCompleteness }) {
     return myArray;
   }
 
-  const [checkboxes, setCheckboxes] = useState(chunkcedCheckboxes() || []);
-  const [percentage, setPercentage] = useState(
-    (habit.completedUnits && habit.units) ? habit.completedUnits/habit.units : 0.0);
+  const [checkboxes, setCheckboxes] = useState(chunkcedCheckboxes());
 
   const clickCheckbox = ({ checked, x, y }) => {
     
@@ -128,25 +112,14 @@ function CheckBoxView({ habit, setCompleteness }) {
     updatedCheckboxes[x][y] = checked
     setCheckboxes(updatedCheckboxes)
 
-    // const updatedUnits = checked ? completedUnits + 1 : completedUnits - 1;
     const updatedCompletedUnits = updatedCheckboxes.reduce((sum, row) =>{
       return sum + row.reduce((sum2, val) => sum2 + (val ? 1 : 0))
     }, 0)
 
-    const goalUnits = habit.units;
-    setPercentage(updatedCompletedUnits/goalUnits)
-
-    setCompleteness(updatedCompletedUnits / goalUnits)
+    setCompletedUnits(updatedCompletedUnits)
   }
 
-  const progressValue = parseFloat(percentage * 100).toFixed(2)
-
   return (
-    <Card
-      title={`Completed: ${progressValue}%`}
-      containerStyle={{ backgroundColor: getProgressColour(progressValue)}}
-    >
-      {
       checkboxes.map((chunk, chunkIndex) => (
         <View
           style={{
@@ -165,12 +138,62 @@ function CheckBoxView({ habit, setCompleteness }) {
           ))}
         </View>
       ))
-      }
-    </Card>
   );
 }
 
-function TimerView({ habit, setCompleteness }) {
+function TimerView({ habit, setCompletedUnits }) {
+
+  const { units, completedUnits } = habit;
+  const remainingSeconds = (completedUnits ? units - completedUnits : units) * 60;
+
+  const [seconds, setSeconds] = useState(remainingSeconds);
+  const [isActive, setIsActive] = useState(false);
+
+  function toggle() {
+    setIsActive(!isActive);
+  }
+
+  function reset() {
+    // Reset to full minutes if its complete.
+    const isHabitComplete = completedUnits === units;
+
+    setCompletedUnits(isHabitComplete ? 0 : completedUnits)
+    setSeconds(isHabitComplete ? units*60 : remainingSeconds);
+    setIsActive(false);
+  }
+
+  useEffect(() => {
+    let interval = null;
+    if (isActive) {
+      interval = setInterval(() => {
+        setSeconds(seconds => {
+
+          const currentCompletedUnits = Math.floor(units - seconds / 60)
+          if (currentCompletedUnits !== completedUnits) setCompletedUnits(currentCompletedUnits)
+
+          return seconds - 1;
+        });
+      }, 1000);
+
+      if (seconds === 0) {
+        setCompletedUnits(units)
+        clearInterval(interval)
+      }
+    } else if (!isActive && seconds !== 0) {
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, seconds]);
+
+  const calculateTime = (sec) => {
+    const hours = Math.floor(sec/3600)
+    const remaining = sec%3600
+
+    const mins = Math.floor(remaining/60)
+    const seconds = remaining%60
+
+    return `${hours}h ${mins}m ${seconds}s`
+  }
 
   return (
     <View>
@@ -178,30 +201,23 @@ function TimerView({ habit, setCompleteness }) {
         style={{
           textAlign: 'center',
           fontWeight: 'bold',
-          // width: IMAGE_SIZE,
-          // height: IMAGE_SIZE,
           borderRadius: 10,
         }}
       >
-        0h 20m 30s
-            </Text>
+        {calculateTime(seconds)}
+      </Text>
 
       <Button
-        icon={{
-          name: "pause",
-          size: 20,
-          color: "white"
-        }}
-        title="Pause / Start"
-        onPress={() => dispatch({
-          type: HABIT_CONSTANTS.SAVE_HABIT,
-          payload: {
-            habit: {
-              ...habit
-            }
-          }
-        })
-        }
+        icon={{ name: isActive ? 'pause' : 'play-arrow', size: 20, color: "white" }}
+        containerStyle={{ marginVertical: 10 }}
+        title={isActive ? 'Pause' : 'Start'}
+        onPress={() => toggle()}
+      />
+      <Button
+        icon={{ name: "undo", size: 20, color: "white" }}
+        containerStyle={{ marginVertical: 10 }}
+        title="Reset"
+        onPress={() => reset()}
       />
     </View>
   );

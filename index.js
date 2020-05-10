@@ -1,5 +1,7 @@
-// const types = ['Minutes', 'Times']
-// const frequencies = ['Daily', 'Weekly', 'Monthly']
+// import HABIT_CONSTANTS from './screens/habits/con/constants`'
+const types = ['Minutes', 'Times']
+const frequencies = ['Daily', 'Weekly', 'Monthly']
+
 
 // const dummyHabits = [
 //     {
@@ -165,28 +167,182 @@
 // console.log(updatedCompletedUnits)
 
 
-const PROGRESS_COLOUR = (percentage) => {
-    // https://www.colorhexa.com/58d68d-to-e74c3c => Reverse HSV Gradient
-    const ceil = Math.ceil((percentage) / 10) * 10;
 
-    switch (ceil) {
-        case 0: return "#e74c3c";
-        case 10: return "#e66f3f";
-        case 20: return "#e49041";
-        case 30: return "#e3af43";
-        case 40: return "#e1cd46";
-        case 50: return "#d6e048";
-        case 60: return "#b8de4b";
-        case 70: return "#9cdd4d";
-        case 80: return "#68da51";
-        case 90: return "#54d958";
-        case 100: return "#58d68d";
-        default: return d + "100";
-    }
+const dummyHabits = [
+    {
+        id: '10',
+        name: 'Read',
+        units: 20,
+        type: types[0],
+        icon: 'home',
+        frequency: frequencies[0],
+        active: true,
+        // createdTimestamp, updatedTimestamp...
+    },
+    {
+        id: '11',
+        name: 'Spanish',
+        units: 15,
+        type: types[0],
+        icon: 'language',
+        frequency: frequencies[1],
+        start: 6,
+        active: true,
+    },
+    {
+        id: '12',
+        name: 'Read',
+        units: 20,
+        type: types[0],
+        icon: 'home',
+        frequency: frequencies[1],
+        start: 0,
+        active: true,
+    },
+    {
+        id: '13',
+        name: 'Spanish',
+        units: 15,
+        type: types[0],
+        icon: 'language',
+        frequency: frequencies[0],
+        active: true,
+    },
+    {
+        id: '14',
+        name: 'Spanish Review',
+        units: 30,
+        type: types[0],
+        icon: 'language',
+        frequency: frequencies[2],
+        start: 10,
+        active: true,
+    },
+    {
+        id: '15',
+        name: 'HIIT Exercise',
+        units: 10, // TODO BIBI: STRING
+        type: types[1],
+        icon: 'directions-run',
+        frequency: frequencies[0],
+        active: true,
+    },
+    {
+        id: '150',
+        name: 'HIIT Exercise',
+        units: 10, // TODO BIBI: STRING
+        type: types[1],
+        icon: 'directions-run',
+        frequency: frequencies[0],
+        active: true,
+    },
+    {
+        id: '16',
+        name: 'DEV Articles',
+        units: 30,
+        type: types[0],
+        icon: 'laptop',
+        frequency: frequencies[1],
+        active: true,
+    },
+];
+
+const today = new Date();
+const todayTimestamp = today.getTime()
+
+let yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1)
+const yesterdayTimestamp = yesterday.getTime()
+
+const dummyHabitHistory = [
+    {
+        id: '100',
+        habitId: '10',
+        completedUnits: 20 * 1,
+        timestamp: todayTimestamp
+    },
+    {
+        id: '101',
+        habitId: '10',
+        completedUnits: 20 * 0.8,
+        timestamp: yesterdayTimestamp
+    },
+    {
+        id: '102',
+        habitId: '15',
+        completedUnits: 10 * 0.5,
+        timestamp: todayTimestamp
+    },
+    {
+        id: '103',
+        habitId: '13',
+        completedUnits: 15 * 2 / 3,
+        timestamp: todayTimestamp
+    },
+];
+
+const constructWeekProgress = (habits, habitsHistory) => {
+    // const frequencies = HABIT_CONSTANTS.FREQUENCIES;
+    const todayHabits = []
+
+    const endTime = new Date()
+    endTime.setHours(23, 59, 59)
+    console.log(`End Time ${endTime.toString()} and ${endTime.getTime()}`)
+
+    const startTime = new Date()
+    startTime.setDate(endTime.getDate() - 6)
+    startTime.setHours(00, 00, 00)
+    console.log(`Start Time ${startTime.toString()} and ${startTime.getTime()}`)
+
+    const T1 = new Date(), T2 = new Date(), T3 = new Date(), T4 = new Date(),
+        T5 = new Date(), T6 = new Date(), T7 = new Date();
+    T6.setDate(T7.getDate() - 1)
+    T5.setDate(T7.getDate() - 2)
+    T4.setDate(T7.getDate() - 3)
+    T3.setDate(T7.getDate() - 4)
+    T2.setDate(T7.getDate() - 5)
+    T1.setDate(T7.getDate() - 6)
+
+    const week = [T1.toDateString(), T2.toDateString(), T3.toDateString(),
+        T4.toDateString(), T5.toDateString(), T6.toDateString(), T7.toDateString()]
+
+    console.log(week)
+
+    // COLOR CODES:     PROGRESS: RED TO GREEN      UNAVAILABLE: BLACK (CREATED AFTER...)   N/A (MONTHLY TASK!)
+
+    habits.forEach(h => {
+        if (!h.active) return; // TODO DELETED 
+
+        const isDailyHabit = h.frequency === frequencies[0];
+        const isWeeklyHabit = (h.frequency === frequencies[1]); //&& (h.start == new Date().getDay())
+        // const isMonthlyHabit = (h.frequency === frequencies[2]) && (h.start == new Date().getDate())
+
+        // CONSIDER HABIT INTRODUCED DATE!
+ 
+        if (isDailyHabit) {
+            const applicableHistory = habitsHistory.filter(hi => 
+                (hi.habitId === h.id) && (hi.timestamp >= startTime.getTime()) && (hi.timestamp < endTime.getTime()));
+
+            const weeklyCompletedUnits = [0, 0, 0, 0, 0, 0, 0]
+
+            applicableHistory.forEach(a => {
+                week.forEach((t, i) => {
+                    if (new Date(a.timestamp).toDateString() === t) weeklyCompletedUnits[i] = a.completedUnits
+                })
+            })
+
+            todayHabits.push({
+                ...h,
+                weeklyCompletedUnits,
+            })
+
+        }
+    });
+
+    console.log(todayHabits)
+    return todayHabits;
 }
-console.log(PROGRESS_COLOUR(0.00))
-console.log(PROGRESS_COLOUR(0.01))
-console.log(PROGRESS_COLOUR(9.99))
-console.log(PROGRESS_COLOUR(10.00))
-console.log(PROGRESS_COLOUR(10.01))
-console.log(PROGRESS_COLOUR(33.33))
+
+constructWeekProgress(dummyHabits, dummyHabitHistory)
+
+

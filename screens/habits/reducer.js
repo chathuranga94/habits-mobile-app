@@ -9,7 +9,7 @@ const dummyHabits = [
     {
         id: '10',
         name: 'Read',
-        units: '20',
+        units: 20,
         type: types[0],
         icon: 'home',
         frequency: frequencies[0],
@@ -19,7 +19,7 @@ const dummyHabits = [
     {
         id: '11',
         name: 'Spanish',
-        units: '15',
+        units: 15,
         type: types[0],
         icon: 'language',
         frequency: frequencies[1],
@@ -29,7 +29,7 @@ const dummyHabits = [
     {
         id: '12',
         name: 'Read',
-        units: '20',
+        units: 20,
         type: types[0],
         icon: 'home',
         frequency: frequencies[1],
@@ -39,7 +39,7 @@ const dummyHabits = [
     {
         id: '13',
         name: 'Spanish',
-        units: '15',
+        units: 15,
         type: types[0],
         icon: 'language',
         frequency: frequencies[0],
@@ -48,7 +48,7 @@ const dummyHabits = [
     {
         id: '14',
         name: 'Spanish Review',
-        units: '30',
+        units: 30,
         type: types[0],
         icon: 'language',
         frequency: frequencies[2],
@@ -76,7 +76,7 @@ const dummyHabits = [
     {
         id: '16',
         name: 'DEV Articles',
-        units: '30',
+        units: 30,
         type: types[0],
         icon: 'laptop',
         frequency: frequencies[1],
@@ -85,40 +85,35 @@ const dummyHabits = [
 ];
 
 const today = new Date();
-console.log(today)
 const todayTimestamp = today.getTime()
-console.log(todayTimestamp)
 
 let yesterday = new Date();
 yesterday.setDate(yesterday.getDate() - 1)
-console.log(yesterday)
 const yesterdayTimestamp = yesterday.getTime()
-console.log(yesterdayTimestamp)
 
 const dummyHabitHistory = [
     {
         id: '100',
         habitId: '10',
-        completeness: 0.8,
+        completedUnits: 20 * 1,
         timestamp: todayTimestamp
     },
     {
         id: '101',
         habitId: '10',
-        completeness: 1.0,
+        completedUnits: 20 * 1,
         timestamp: yesterdayTimestamp
     },
     {
         id: '102',
         habitId: '15',
-        completeness: 0.5,
-        completedUnits: 2,
+        completedUnits: 10 * 0.5,
         timestamp: todayTimestamp
     },
     {
         id: '103',
         habitId: '13',
-        completeness: 1.0,
+        completedUnits: 15 * 2/3,
         timestamp: todayTimestamp
     },
 ];
@@ -137,7 +132,7 @@ export default function calc(state = HABITS_STORE, { type, payload }) {
         case HABIT_CONSTANTS.SAVE_HABIT_PROGRESS:
             return {
                 ...state,
-                habitsHistory: HabitManager.updateHabitProgress(state.habitsHistory, payload.habit, payload.completeness)
+                habitsHistory: HabitManager.updateHabitProgress(state.habitsHistory, payload.habit, payload.completedUnits)
             } 
         default:
             return state

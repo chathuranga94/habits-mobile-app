@@ -71,8 +71,8 @@ export default function AddScreen(props) {
           placeholder='Eg: 20 (minutes, daily)' // TODO: Placeholder by default not number 0
           label='Units'
           leftIcon={{ name: 'av-timer' }}
-          value={units}
-          onChangeText={value => setUnits(value)} // TODO: Only numeric numbers
+          value={units.toString()}
+          onChangeText={value => setUnits(isNaN(parseInt(value)) ? 0 : parseInt(value))} // TODO: Only numeric numbers
         />
 
         <ButtonGroup
