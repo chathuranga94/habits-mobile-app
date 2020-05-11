@@ -24,6 +24,10 @@
     ],
     "ios": {
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.codekoala94.habits",
+      "versionCode": 1
     }
   }
 }
