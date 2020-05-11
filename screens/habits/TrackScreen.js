@@ -27,9 +27,27 @@ export default function AddScreen(props) {
   const completedFraction = (completedUnits && habit.units) ? completedUnits / habit.units : 0.0;
   const progressValue = parseFloat(completedFraction * 100).toFixed(2)
 
+  // const [visible, setVisible] = useState(false);
+
+  // const toggleOverlay = () => {
+  //   setVisible(!visible);
+  // };
+
   return (
     <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+
+
+
+        {/*
+        <Button title="Open Overlay" onPress={toggleOverlay} />
+
+        <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
+          <Text>Hello from Overlay!</Text>
+        </Overlay>
+        */}
+
+
 
         <Text h5="true" style={{ textAlign: 'center' }}>{`Goal`}</Text>
         <Text h2 style={{ textAlign: 'center', fontWeight: 'bold' }}>{habit.name}</Text>

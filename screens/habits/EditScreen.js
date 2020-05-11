@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Platform, View, Switch } from 'react-native';
 import { useSelector, useDispatch } from "react-redux";
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import TouchableScale from 'react-native-touchable-scale';
-import { Overlay, Button, Input, ButtonGroup, Card, Text, Icon, ListItem } from 'react-native-elements';
+import { Overlay, Button, Input, ButtonGroup, Text, Icon, ListItem } from 'react-native-elements';
 
 import HABIT_CONSTANTS from './constants';
 
@@ -12,8 +12,9 @@ const types = HABIT_CONSTANTS.TYPES
 const frequencies = HABIT_CONSTANTS.FREQUENCIES
 const weekDays = HABIT_CONSTANTS.WEEK_DAYS
 const monthDays = HABIT_CONSTANTS.MONTH_DAYS
+const icons = HABIT_CONSTANTS.ICONS
 
-export default function AddScreen(props) {
+export default function HabitEditScreen(props) {
   const dispatch = useDispatch();
   const habitStore = useSelector(state => state.habits);
   const { isEdit, habitId } = props.route.params;
@@ -24,34 +25,17 @@ export default function AddScreen(props) {
     habit = habitStore.habits.find(habit => habit.id === habitId)
   }
 
-  const [visible, setVisible] = useState(false);
-
   const [name, setName] = useState(isEdit ? habit.name : '');
-  const [units, setUnits] = useState(isEdit ? habit.units :null); 
-  const [type, setType] = useState(isEdit ? (habit.type === types[0] ? 0 : 1 ): 0);
+  const [units, setUnits] = useState(isEdit ? habit.units : null);
+  const [type, setType] = useState(isEdit ? (habit.type === types[0] ? 0 : 1) : 0);
   const [frequency, setFrequency] = useState(isEdit ? (habit.frequency === frequencies[0] ? 0 : 1) : 0);
   const [start, setStart] = useState(1);
-
-
-  const toggleOverlay = () => {
-    setVisible(!visible);
-  };
-
-  const constructFrequency = (frequency, start) => {
-    if (frequency === 0) {
-      return '';
-    } else if (frequency === 1) {
-      return 'on ' + weekDays[start];
-    } else if (frequency === 2) {
-      return 'on ' + monthDays(start); 
-    } else {
-      return '';
-    }
-  }
+  const [icon, setIcon] = useState(isEdit ? habit.icon : icons[0]);
+  const [enableReminder, setEnableRemainder] = useState(false);
 
   return (
     <View style={{ flex: 1 }}>
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
         <Input
           placeholder='Eg: Read a book.'
@@ -59,20 +43,14 @@ export default function AddScreen(props) {
           leftIcon={{ name: 'text-format' }}
           value={name}
           onChangeText={value => setName(value)}
-
-          // leftIcon={{ type: 'font-awesome', name: 'stopwatch' }}
-
-          // leftIcon={
-          //   <Icon name='user' size={24} color='black' />
-          // }
         />
 
         <Input
-          placeholder='Eg: 20 (minutes, daily)' // TODO: Placeholder by default not number 0
+          placeholder='Eg: 20 (minutes, daily)'
           label='Units'
           leftIcon={{ name: 'av-timer' }}
-          value={units.toString()}
-          onChangeText={value => setUnits(isNaN(parseInt(value)) ? 0 : parseInt(value))} // TODO: Only numeric numbers
+          value={units ? units.toString() : ''}
+          onChangeText={value => setUnits(isNaN(parseInt(value)) ? 0 : parseInt(value))}
         />
 
         <ButtonGroup
@@ -83,13 +61,13 @@ export default function AddScreen(props) {
         />
 
         <ButtonGroup
-          onPress={(value) => setFrequency(value)}
+          onPress={(value) => { setFrequency(value); setStart(1); }}
           selectedIndex={frequency}
           buttons={frequencies}
           containerStyle={{ height: 40 }}
         />
 
-        { (frequency === 1) &&
+        {(frequency === 1) &&
           <ButtonGroup
             onPress={(value) => setStart(value)}
             selectedIndex={start}
@@ -97,137 +75,185 @@ export default function AddScreen(props) {
             containerStyle={{ height: 20 }}
           />
         }
+
         {(frequency === 2) &&
           <View style={{ flexDirection: "row", flexWrap: 'wrap' }}>
             <Button
               title="-"
-              buttonStyle={{height: 20}}
+              buttonStyle={{ height: 20 }}
               disabled={start <= 1}
               onPress={() => setStart(start - 1)}
             />
             <Text>{start}</Text>
             <Button
               title="+"
-              buttonStyle={{height: 20}}
+              buttonStyle={{ height: 20 }}
               disabled={start >= 31}
               onPress={() => setStart(start + 1)}
             />
           </View>
         }
 
-        {/*
-        <Input
-          disabled
-          placeholder='Remainder'
-          leftIcon={{ name: 'av-timer' }}
+        <ListItem
+          title="Reminder 😲"
+          switch={{ value: enableReminder, onValueChange: (value) => setEnableRemainder(value) }}
+          bottomDivider
         />
-        */}
+        {(enableReminder) &&
+          <ListItem title="implement alarm time" chevron={{ color: 'pink' }} />
+        }
 
-        {/* <Button title="Select Icon" onPress={toggleOverlay} /> */}
+        <br />
+        <OverlayExample icon={icon} setIcon={setIcon} />
 
-    </ScrollView>
+      </ScrollView>
 
       <View>
-        {/*
-        <Card title='Review Habit!'>
-          <Text style={{ marginBottom: 10 }}>
-            The idea with React Native.
-          </Text>
-          <Button
-            icon={{
-              name: "save",
-              size: 20,
-              color: "white"
-            }}
-            title="Save Habit"
-          />
-        </Card>
-        */}
-
-
-
         <Text style={{ textAlign: 'center', fontWeight: 'bold', marginVertical: 5 }}>
           Review Habit!
         </Text>
-        <ListItem
-          component={TouchableScale}
-          friction={90}
-          tension={100}
-          activeScale={0.95}
-          key={0}
-          title={name || 'Name Undefined'}
-          titleStyle={{ color: 'white', fontWeight: 'bold' }}
-          subtitleStyle={{ color: 'white' }}
-          subtitle={`${(units || '0')} ${(types[type || 0])} | ` +
-            `${(frequencies[frequency || 0])} ${constructFrequency(frequency, start)}`}
-          leftAvatar={{ rounded: true, icon: { name: 'home', reverse: true } }}
-          containerStyle={{
-            marginHorizontal: 16,
-            marginVertical: 8,
-            borderRadius: 8,
-            backgroundColor: '#2089dc'
-          }}
-        />
-        <Button
-          icon={{
-            name: "save",
-            size: 20,
-            color: "white"
-          }}
-          title="Save Habit"
-          onPress={() => dispatch({
-            type: HABIT_CONSTANTS.SAVE_HABIT,
-            payload: {
-              isEdit,
-              habit: { ...habit, name, units,
-                type: type === 0 ? types[0] : types[1],
-                frequency: frequency === 0 ? frequencies[0] : frequencies[1], // TODO HERE?
-                start: frequency !== 0 ? start : null,
-              }
-      }
-    })
-    }
-  />
+        <HabitReviewCard name={name} units={units} type={type} icon={icon} frequency={frequency} start={start} />
 
         {isEdit &&
-        <Button
-          icon={{
-            name: "delete",
-            size: 20,
-            color: "white"
-          }}
-          title="Delete Habit"
-          onPress={() => dispatch({ type: HABIT_CONSTANTS.DELETE_HABIT, payload: { habitId: habit.id } })
-          }
-        />}
+          <DeleteHabitButton habit={habit} dispatch={dispatch} />
+        }
+
+        <SaveHabitButton habit={habit} name={name} units={units} type={type} icon={icon}
+          frequency={frequency} start={start} isEdit={isEdit} dispatch={dispatch} />
 
       </View>
-
-
-      {/*
-      <View>
-        <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
-          <Text>Hello from Overlay!</Text>
-        </Overlay>
-      </View>
-      */}
 
     </View>
   );
 }
 
-function EditFooter({ icon, label, onPress, isLastOption }) {
+function OverlayExample({ icon, setIcon }) {
+  const [visible, setVisible] = useState(false);
+
+  const myArray = [];
+  const size = 5;
+  const iconsSet = [ ...icons ]
+
+  const emptyTiles = size - iconsSet.length % size;
+  for (let i = 0; i < emptyTiles; i++) iconsSet.push('-1')
+  for (var i = 0; i < iconsSet.length; i += size) myArray.push(iconsSet.slice(i, i + size));
+
+  const toggleOverlay = () => {
+    setVisible(!visible);
+  };
+
+  const constructIconButtons = (arr, setIcon, setVisible) => arr.map(iconName => {
+    const iconButton = () => <Button
+      icon={{ name: iconName }} type="clear" transparent={true}
+        onPress={() => { setIcon(iconName); setVisible(false) }}
+    />
+
+    const emptyText = () => <Text />
+
+    return { element: iconName === '-1' ? emptyText : iconButton }
+  });
+
+  const constructIconButtonGroups = (setIcon, setVisible) => myArray.map((arr, index) =>
+    <ButtonGroup
+      buttons={constructIconButtons(arr, setIcon, setVisible)}
+      key={index}
+      containerStyle={{ height: 60, marginTop: 0, marginBottom: 0 }}
+    />
+  );
+
+  // Overlay -> not implemented yet in react-native-web
   return (
-    <RectButton style={[styles.option, isLastOption && styles.lastOption]} onPress={onPress}>
-      <View style={{ flexDirection: 'row' }}>
-        <View style={styles.optionIconContainer}>
-          <Ionicons name={icon} size={22} color="rgba(0,0,0,0.35)" />
-        </View>
-        <View style={styles.optionTextContainer}>
-          <Text style={styles.optionText}>{label}</Text>
-        </View>
-      </View>
-    </RectButton>
+    <View>
+      <Button type="solid" icon={{name: icon }} iconRight={true} iconContainerStyle={{ borderColor: 'white'}}
+        title="Icon" onPress={toggleOverlay} />
+
+        {
+          Platform.OS === "web" ? constructIconButtonGroups(setIcon, setVisible) :
+          <Overlay overlayStyle={{ width: '80%' }} isVisible={visible} onBackdropPress={toggleOverlay}>
+            <Text>Please select an icon!</Text>
+            {constructIconButtonGroups(setIcon, setVisible)}
+          </Overlay>
+        }
+    </View>
+  );
+}
+
+function DeleteHabitButton({ habit, dispatch }) {
+  return (
+    <Button
+      icon={{
+        name: "delete",
+        size: 20,
+        color: "white"
+      }}
+      buttonStyle={{ backgroundColor: 'rgba(255, 0, 0, 0.8)', marginBottom: 10 }}
+      title="Delete Habit"
+      onPress={() => dispatch({ type: HABIT_CONSTANTS.DELETE_HABIT, payload: { habitId: habit.id } })
+      }
+    />
+  );
+}
+
+function SaveHabitButton({ habit, name, units, type, icon, frequency, start, isEdit, dispatch }) {
+  return (
+    <Button
+      icon={{
+        name: "save",
+        size: 20,
+        color: "white"
+      }}
+      buttonStyle={{ backgroundColor: 'rgba(0, 255, 0, 0.8)' }}
+      title="Save Habit"
+      onPress={() => dispatch({
+        type: HABIT_CONSTANTS.SAVE_HABIT,
+        payload: {
+          isEdit,
+          habit: {
+            ...habit, name, units, icon,
+            type: type === 0 ? types[0] : types[1],
+            frequency: frequency === 0 ? frequencies[0] :
+              frequency === 1 ? frequencies[1] : frequencies[2],
+            start: frequency !== 0 ? start : null,
+          }
+        }
+      })}
+    />
+  );
+}
+
+function HabitReviewCard({ name, units, type, icon, frequency, start }) {
+  const constructFrequency = (frequency, start) => {
+    if (frequency === 0) {
+      return '';
+    } else if (frequency === 1) {
+      return 'on every ' + weekDays[start];
+    } else if (frequency === 2) {
+      return 'on every ' + monthDays(start);
+    } else {
+      return '';
+    }
+  }
+
+  return (
+    <ListItem
+      component={TouchableScale}
+      friction={90}
+      tension={100}
+      activeScale={0.95}
+      key={0}
+      title={name || 'Please enter a name'}
+      titleStyle={{ color: 'white', fontWeight: 'bold' }}
+      subtitleStyle={{ color: 'white' }}
+      subtitle={`${(units || '0')} ${(types[type || 0])} | ` +
+        `${(frequencies[frequency || 0])} ${constructFrequency(frequency, start)}`}
+      leftAvatar={{ rounded: true, icon: { name: icon, reverse: true } }}
+      containerStyle={{
+        marginHorizontal: 16,
+        marginVertical: 8,
+        borderRadius: 8,
+        backgroundColor: '#58D6D0'
+      }}
+    />
   );
 }
 
@@ -240,25 +266,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingTop: 15,
-  },
-  optionIconContainer: {
-    marginRight: 12,
-  },
-  option: {
-    backgroundColor: '#fdfdfd',
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderBottomWidth: 0,
-    borderColor: '#ededed',
-  },
-  lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  optionText: {
-    fontSize: 15,
-    alignSelf: 'flex-start',
-    marginTop: 1,
   },
   buttonStyle: {
     // backgroundColor: 'green',

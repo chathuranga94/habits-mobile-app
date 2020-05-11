@@ -6,11 +6,14 @@ export default {
 
     saveHabit: (habits, habit, isEdit) => {
         if (isEdit) {
+            habit.updatedAt = new Date().getTime();
             const index = habits.findIndex(h => h.id === habit.id);
             if(index !== -1) habits[index] = habit;
             return habits;
         } else {
-            habits.push({ ...habit, id: '100', icon: 'home', active: true });
+            habit.createdAt = new Date().getTime()
+            habit.updatedAt = habit.createdAt
+            habits.push({ ...habit, id: '100', active: true });
             return habits;
         }
     },
