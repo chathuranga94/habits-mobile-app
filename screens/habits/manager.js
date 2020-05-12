@@ -1,3 +1,4 @@
+import uuid from 'react-native-uuid';
 import HABIT_CONSTANTS from './constants' 
 
 export default {
@@ -13,7 +14,7 @@ export default {
         } else {
             habit.createdAt = new Date().getTime()
             habit.updatedAt = habit.createdAt
-            habits.push({ ...habit, id: '100', active: true });
+            habits.push({ ...habit, id: uuid.v4(), active: true });
             return habits;
         }
     },
@@ -78,7 +79,7 @@ export default {
         } else {
             console.log(`Creating Habit History for ${habit.id}`)
             habitsHistory.push({
-                id: '180', //uuid.v4(),
+                id: uuid.v4(),
                 habitId: habit.id,
                 completedUnits: completedUnits,
                 timestamp: new Date().getTime()

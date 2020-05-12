@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { ScrollView } from 'react-native-gesture-handler';
 import TouchableScale from 'react-native-touchable-scale';
 import { Overlay, Button, Input, ButtonGroup, Text, ListItem } from 'react-native-elements';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 import HABIT_CONSTANTS from './constants';
 import { LineBreak } from '../../components'
@@ -31,7 +32,16 @@ export default function HabitEditScreen(props) {
   const [frequency, setFrequency] = useState(isEdit ? (habit.frequency === frequencies[0] ? 0 : 1) : 0);
   const [start, setStart] = useState(1);
   const [icon, setIcon] = useState(isEdit ? habit.icon : icons[0]);
-  const [enableReminder, setEnableRemainder] = useState(false);
+  
+
+  const reminderConfigured = habit && habit.reminderTime && habit.reminderTime !== '';
+  const currentTime = new Date()
+  if (reminderConfigured) {
+    currentTime.setHours(habit.reminderTime.split(':')[0])
+    currentTime.setMinutes(habit.reminderTime.split(':')[1])
+  }
+  const [enableReminder, setEnableRemainder] = useState(reminderConfigured);
+  const [reminderTime, setReminderTime] = useState(currentTime.getTime());
 
   return (
     <View style={{ flex: 1 }}>
@@ -88,24 +98,10 @@ export default function HabitEditScreen(props) {
           />
         }
 
-        <ListItem
-          title="Reminder"
-          leftIcon={{ name: 'access-alarm' }}
-          switch={{ value: enableReminder, onValueChange: (value) => setEnableRemainder(value) }}
-          bottomDivider
-          containerStyle={{ marginHorizontal: 10 }}
-        />
-        {(enableReminder) &&
-          <ListItem
-            title="implement alarm time"
-            chevron={{ color: 'pink' }}
-            containerStyle={{ marginHorizontal: 10 }}
-          />
-        }
+        <ReminderTime enableReminder={enableReminder} setEnableRemainder={setEnableRemainder}
+          reminderTime={reminderTime} setReminderTime={setReminderTime} />
 
-        <LineBreak />
         <OverlayIcon icon={icon} setIcon={setIcon} />
-        <LineBreak />
 
       </ScrollView>
 
@@ -119,13 +115,60 @@ export default function HabitEditScreen(props) {
           <DeleteHabitButton habit={habit} dispatch={dispatch} />
         }
 
-        <SaveHabitButton habit={habit} name={name} units={units} type={type} icon={icon}
-          frequency={frequency} start={start} isEdit={isEdit} dispatch={dispatch} />
+        <SaveHabitButton habit={habit} name={name} units={units} type={type} icon={icon} isEdit={isEdit} dispatch={dispatch}
+          frequency={frequency} start={start} enableReminder={enableReminder} reminderTime={reminderTime}  />
 
       </View>
 
     </View>
   );
+}
+
+function ReminderTime({ reminderTime, setReminderTime, enableReminder, setEnableRemainder }) {
+  const [show, setShow] = useState(false);
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || reminderTime;
+    setShow(Platform.OS === 'ios');
+    setReminderTime(currentDate);
+  };
+
+  return(
+    <View>
+      <ListItem
+        title="Reminder"
+        leftIcon={{ name: 'access-alarm' }}
+        switch={{ value: enableReminder, onValueChange: (value) => setEnableRemainder(value) }}
+        bottomDivider
+        containerStyle={{ marginHorizontal: 10 }}
+      />
+      {(enableReminder) && (
+        (Platform.OS === "web") ?
+          <ListItem
+            title="implement alarm time in webview"
+            chevron={{ color: 'pink' }}
+            containerStyle={{ marginHorizontal: 10 }}
+          /> :
+          <Button
+            onPress={() => setShow(true)}
+            title={`Time: ${new Date(reminderTime).getHours()}: ${new Date(reminderTime).getMinutes()}`}
+            containerStyle={{ marginHorizontal: 10 }}
+          />
+      )}
+
+      {show && (
+        <DateTimePicker
+          testID="dateTimePicker"
+          timeZoneOffsetInMinutes={0}
+          value={reminderTime}
+          mode={'time'}
+          is24Hour={false}
+          display="default"
+          onChange={onChange}
+        />
+      )}
+    </View>
+  )
 }
 
 function OverlayIcon({ icon, setIcon }) {
@@ -165,8 +208,9 @@ function OverlayIcon({ icon, setIcon }) {
   // Overlay -> not implemented yet in react-native-web
   return (
     <View>
-      <Button type="solid" icon={{name: icon }} iconRight={true} iconContainerStyle={{ borderColor: 'white'}}
-        title="Icon" onPress={toggleOverlay} containerStyle={{ marginHorizontal: 10 }} />
+      <LineBreak />
+      <Button type="solid" icon={{ name: icon, color: "white" }} iconRight={true}
+        title="Icon:" onPress={toggleOverlay} containerStyle={{ marginHorizontal: 10 }} />
 
         {
           Platform.OS === "web" ? constructIconButtonGroups(setIcon, setVisible) :
@@ -175,6 +219,7 @@ function OverlayIcon({ icon, setIcon }) {
             {constructIconButtonGroups(setIcon, setVisible)}
           </Overlay>
         }
+      <LineBreak />
     </View>
   );
 }
@@ -195,7 +240,7 @@ function DeleteHabitButton({ habit, dispatch }) {
   );
 }
 
-function SaveHabitButton({ habit, name, units, type, icon, frequency, start, isEdit, dispatch }) {
+function SaveHabitButton({ habit, name, units, type, icon, frequency, start, isEdit, dispatch, enableReminder, reminderTime }) {
   return (
     <Button
       icon={{
@@ -215,6 +260,7 @@ function SaveHabitButton({ habit, name, units, type, icon, frequency, start, isE
             frequency: frequency === 0 ? frequencies[0] :
               frequency === 1 ? frequencies[1] : frequencies[2],
             start: frequency !== 0 ? start : null,
+            reminderTime: enableReminder ? `${new Date(reminderTime).getHours()}:${new Date(reminderTime).getMinutes()}` : ''
           }
         }
       })}
