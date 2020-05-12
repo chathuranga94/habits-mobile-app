@@ -1,12 +1,12 @@
-import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { StyleSheet, Platform, View, Switch } from 'react-native';
+import { StyleSheet, Platform, View } from 'react-native';
 import { useSelector, useDispatch } from "react-redux";
-import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler';
 import TouchableScale from 'react-native-touchable-scale';
-import { Overlay, Button, Input, ButtonGroup, Text, Icon, ListItem } from 'react-native-elements';
+import { Overlay, Button, Input, ButtonGroup, Text, ListItem } from 'react-native-elements';
 
 import HABIT_CONSTANTS from './constants';
+import { LineBreak } from '../../components'
 
 const types = HABIT_CONSTANTS.TYPES
 const frequencies = HABIT_CONSTANTS.FREQUENCIES
@@ -18,8 +18,8 @@ export default function HabitEditScreen(props) {
   const dispatch = useDispatch();
   const habitStore = useSelector(state => state.habits);
   const { isEdit, habitId } = props.route.params;
-
   console.log(`Rendering EditScreen for HabitId: ${habitId} and Edit: ${isEdit}`);
+
   let habit = null;
   if (isEdit) {
     habit = habitStore.habits.find(habit => habit.id === habitId)
@@ -72,39 +72,40 @@ export default function HabitEditScreen(props) {
             onPress={(value) => setStart(value)}
             selectedIndex={start}
             buttons={weekDays}
-            containerStyle={{ height: 20 }}
+            containerStyle={{ height: 30 }}
           />
         }
 
         {(frequency === 2) &&
-          <View style={{ flexDirection: "row", flexWrap: 'wrap' }}>
-            <Button
-              title="-"
-              buttonStyle={{ height: 20 }}
-              disabled={start <= 1}
-              onPress={() => setStart(start - 1)}
-            />
-            <Text>{start}</Text>
-            <Button
-              title="+"
-              buttonStyle={{ height: 20 }}
-              disabled={start >= 31}
-              onPress={() => setStart(start + 1)}
-            />
-          </View>
+          <ButtonGroup
+            onPress={(value) => {
+              if (value === 0 && start > 1) setStart(start - 1);
+              if (value === 2 && start < 31) setStart(start + 1);
+            }}
+            disabled={[1]}
+            buttons={["-" , start, "+"]}
+            containerStyle={{ height: 30 }}
+          />
         }
 
         <ListItem
-          title="Reminder 😲"
+          title="Reminder"
+          leftIcon={{ name: 'access-alarm' }}
           switch={{ value: enableReminder, onValueChange: (value) => setEnableRemainder(value) }}
           bottomDivider
+          containerStyle={{ marginHorizontal: 10 }}
         />
         {(enableReminder) &&
-          <ListItem title="implement alarm time" chevron={{ color: 'pink' }} />
+          <ListItem
+            title="implement alarm time"
+            chevron={{ color: 'pink' }}
+            containerStyle={{ marginHorizontal: 10 }}
+          />
         }
 
-        <br />
-        <OverlayExample icon={icon} setIcon={setIcon} />
+        <LineBreak />
+        <OverlayIcon icon={icon} setIcon={setIcon} />
+        <LineBreak />
 
       </ScrollView>
 
@@ -127,7 +128,7 @@ export default function HabitEditScreen(props) {
   );
 }
 
-function OverlayExample({ icon, setIcon }) {
+function OverlayIcon({ icon, setIcon }) {
   const [visible, setVisible] = useState(false);
 
   const myArray = [];
@@ -165,7 +166,7 @@ function OverlayExample({ icon, setIcon }) {
   return (
     <View>
       <Button type="solid" icon={{name: icon }} iconRight={true} iconContainerStyle={{ borderColor: 'white'}}
-        title="Icon" onPress={toggleOverlay} />
+        title="Icon" onPress={toggleOverlay} containerStyle={{ marginHorizontal: 10 }} />
 
         {
           Platform.OS === "web" ? constructIconButtonGroups(setIcon, setVisible) :
@@ -260,16 +261,12 @@ function HabitReviewCard({ name, units, type, icon, frequency, start }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: '#fafafa',
     backgroundColor: '#ECEFF1',
-    // paddingVertical: 8
   },
   contentContainer: {
     paddingTop: 15,
   },
   buttonStyle: {
-    // backgroundColor: 'green',
     width: '50%',
-    // height: 40
   },
 });

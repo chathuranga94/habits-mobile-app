@@ -25,7 +25,7 @@ export default function AddScreen(props) {
   });
 
   const constructGuideTiles = () => [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => {
-    const title = [0, 50, 100].includes(val) ? val : ''
+    const title = [0, 50, 100].includes(val) ? val.toString() : ''
 
     const component = () =>
       <ListItem title={title} containerStyle={{ backgroundColor: HABIT_CONSTANTS.PROGRESS_COLOUR(val) }}></ListItem>
