@@ -1,3 +1,4 @@
+import uuid from 'react-native-uuid';
 import HABIT_CONSTANTS from './constants' 
 
 export default {
@@ -6,11 +7,14 @@ export default {
 
     saveHabit: (habits, habit, isEdit) => {
         if (isEdit) {
+            habit.updatedAt = new Date().getTime();
             const index = habits.findIndex(h => h.id === habit.id);
             if(index !== -1) habits[index] = habit;
             return habits;
         } else {
-            habits.push({ ...habit, id: '100', icon: 'home', active: true });
+            habit.createdAt = new Date().getTime()
+            habit.updatedAt = habit.createdAt
+            habits.push({ ...habit, id: uuid.v4(), active: true });
             return habits;
         }
     },
@@ -75,7 +79,7 @@ export default {
         } else {
             console.log(`Creating Habit History for ${habit.id}`)
             habitsHistory.push({
-                id: '180', //uuid.v4(),
+                id: uuid.v4(),
                 habitId: habit.id,
                 completedUnits: completedUnits,
                 timestamp: new Date().getTime()
