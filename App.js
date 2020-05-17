@@ -1,16 +1,13 @@
 import * as React from 'react';
 import { Provider, connect } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux'
-import ReduxThunk from 'redux-thunk'
+import { PersistGate } from 'redux-persist/integration/react';
 import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import AppReducer from './screens/reducer'
+import { store, persistor } from './screens/reducer'
 import useLinking from './navigation/useLinking';
 import MainNavigation from './screens/routes'
-
-const store = createStore(AppReducer, applyMiddleware(ReduxThunk))
 
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
@@ -50,24 +47,26 @@ export default function App(props) {
   } else {
     return (
       <Provider store={store}>
-      <View style={styles.container}>
-        {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-        <MainNavigation containerRef={containerRef} getInitialState={getInitialState} />
-        
-        {/*
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen name="Root" component={BottomTabNavigator} />
-            <Stack.Screen name="editHabit" component={HabitsEditScreen} options={{ title: 'Habit Edit' }} />
-            <Stack.Screen
-              name="trackHabit"
-              component={HabitsTrackScreen}
-              options={{ title: '', headerStyle: {backgroundColor: '#f4511e'}, headerTintColor: '#fff', headerTitleStyle: {fontWeight: 'bold'}  }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-        */}
-      </View>
+        <PersistGate loading={null} persistor={persistor}>
+          <View style={styles.container}>
+            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+            <MainNavigation containerRef={containerRef} getInitialState={getInitialState} />
+            
+            {/*
+            <NavigationContainer>
+              <Stack.Navigator>
+                <Stack.Screen name="Root" component={BottomTabNavigator} />
+                <Stack.Screen name="editHabit" component={HabitsEditScreen} options={{ title: 'Habit Edit' }} />
+                <Stack.Screen
+                  name="trackHabit"
+                  component={HabitsTrackScreen}
+                  options={{ title: '', headerStyle: {backgroundColor: '#f4511e'}, headerTintColor: '#fff', headerTitleStyle: {fontWeight: 'bold'}  }}
+                />
+              </Stack.Navigator>
+            </NavigationContainer>
+            */}
+          </View>
+        </PersistGate>
       </Provider>
     );
   }

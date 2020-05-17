@@ -4,6 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
+import { useSelector, useDispatch } from "react-redux";
+
 import TabBarIcon from '../../components/TabBarIcon';
 
 const Stack = createStackNavigator();
@@ -26,6 +28,8 @@ function TabAScreen({ navigation }) {
     );
   }
   function TabADetailsScreen({navigation}) {
+    const dispatch = useDispatch();
+
     return (
       <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center' }}>
         <Text>
@@ -38,6 +42,10 @@ function TabAScreen({ navigation }) {
         <Button 
         onPress={() => navigation.openDrawer()}
         title="Toggle drawer"
+        />
+        <Button 
+        onPress={() => dispatch({ type: 'CLEAR_STORE', payload: { } })}
+        title="Clear store"
         />
       </View>
     );
