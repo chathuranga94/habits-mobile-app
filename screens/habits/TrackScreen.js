@@ -27,27 +27,12 @@ export default function AddScreen(props) {
   const completedFraction = (completedUnits && habit.units) ? completedUnits / habit.units : 0.0;
   const progressValue = parseFloat(completedFraction * 100).toFixed(2)
 
-  // const [visible, setVisible] = useState(false);
-
-  // const toggleOverlay = () => {
-  //   setVisible(!visible);
-  // };
+  console.log(props.navigation.state)
+  console.log(props.navigation.dangerouslyGetState().routes)
 
   return (
     <View style={{ flex: 1 }}>
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-
-
-
-        {/*
-        <Button title="Open Overlay" onPress={toggleOverlay} />
-
-        <Overlay isVisible={visible} onBackdropPress={toggleOverlay}>
-          <Text>Hello from Overlay!</Text>
-        </Overlay>
-        */}
-
-
 
         <Text h5="true" style={{ textAlign: 'center' }}>{`Goal`}</Text>
         <Text h2 style={{ textAlign: 'center', fontWeight: 'bold' }}>{habit.name}</Text>
@@ -77,11 +62,6 @@ export default function AddScreen(props) {
 
     </ScrollView>
       <View>
-        {/*
-        <Text style={{ textAlign: 'center', fontWeight: 'bold', marginVertical: 5 }}>
-          Submit Progress!
-        </Text>
-        */}
         <Button
           icon={{
             name: "save",
@@ -91,11 +71,15 @@ export default function AddScreen(props) {
             brand: false,
           }}
           title="Save Progress"
-          onPress={() => dispatch({
-            type: HABIT_CONSTANTS.SAVE_HABIT_PROGRESS,
-            payload: { completedUnits, habit: habit }
-          })
-          }
+          onPress={() => {
+            dispatch({
+              type: HABIT_CONSTANTS.SAVE_HABIT_PROGRESS,
+              payload: { completedUnits, habit: habit }
+            })
+            // props.navigation.navigate('Root', { isEdit: true })
+            // TODO BIBI: PASS NOTIFICATION AS PARAMS TO HOME SCREEN
+            props.navigation.goBack()
+          }}
         />
 
       </View>

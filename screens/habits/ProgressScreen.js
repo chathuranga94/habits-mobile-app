@@ -11,6 +11,8 @@ export default function HabitsProgressScreen(props) {
   const habitStore = useSelector(state => state.habits);
   const todayHabits = HabitManager.constructTodayProgress(habitStore.habits, habitStore.habitsHistory);
 
+  console.log(props.navigation.dangerouslyGetState().routes)
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
 
