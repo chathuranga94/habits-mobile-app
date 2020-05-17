@@ -18,7 +18,7 @@ export default function AddScreen(props) {
   const dispatch = useDispatch();
 
   const habitStore = useSelector(state => state.habits);
-  const todayHabits = HabitManager.constructTodayProgress(habitStore.habits, habitStore.habitsHistory);
+  const todayHabits = HabitManager.constructTodayProgress2(habitStore.habits, habitStore.habitsHistory);
   const { habitId } = props.route.params;
   const habit = todayHabits.find(h => h.id === habitId)
 
