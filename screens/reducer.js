@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 
-import calcReducer from './add/reducer';
+// import calcReducer from './add/reducer';
 import habitsReducer from './habits/reducer';
 
 const reducers = combineReducers({
-    calc: calcReducer,
+    // calc: calcReducer,
     habits: habitsReducer,
 });
 

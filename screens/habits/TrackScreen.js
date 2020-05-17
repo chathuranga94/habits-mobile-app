@@ -78,7 +78,8 @@ export default function AddScreen(props) {
             })
             // props.navigation.navigate('Root', { isEdit: true })
             // TODO BIBI: PASS NOTIFICATION AS PARAMS TO HOME SCREEN
-            props.navigation.goBack()
+            // props.navigation.goBack()
+            props.navigation.navigate('Home')
           }}
         />
 
