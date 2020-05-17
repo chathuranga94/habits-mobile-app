@@ -5,6 +5,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import { MonoText } from '../../components/StyledText';
 
+function ToDoScreen() {
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Home!</Text>
+    </View>
+  )
+}
+
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>

@@ -8,6 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 
 import HomeScreenNavigation from './home/routes'
 import HabitsScreenNavigation from './habits/routes'
+import ToDoScreenNavigation from './todo/routes'
 
 import { HomeScreen } from './index'
 
@@ -39,7 +40,7 @@ export default function MainNavigation({ containerRef, initialNavigationState })
             />
             <Drawer.Screen
               name="todo"
-              component={HomeScreen}
+              component={ToDoScreenNavigation}
               options={{
                 drawerLabel: 'To Do',
                 drawerIcon: ({ color, size, focused }) => icon({ name: "ios-checkbox-outline" }),
