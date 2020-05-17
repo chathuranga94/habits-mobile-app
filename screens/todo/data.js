@@ -1,66 +1,51 @@
+// const types = HABIT_CONSTANTS.TYPES
+// const frequencies = HABIT_CONSTANTS.FREQUENCIES
 
-export const dummyHabits = [
-    {
-        id: '10',
-        name: 'Read',
-        units: '20',
-        type: types[0],
-        icon: 'home',
-        frequency: frequencies[0],
-        active: true,
-    },
-    {
-        id: '11',
-        name: 'Spanish',
-        units: '15',
-        type: types[0],
-        icon: 'language',
-        frequency: frequencies[0],
-        active: true,
-    },
-    {
-        id: '12',
-        name: 'Read',
-        units: '20',
-        type: types[0],
-        icon: 'home',
-        frequency: frequencies[0],
-        active: true,
-    },
-    {
-        id: '13',
-        name: 'Spanish',
-        units: '15',
-        type: types[0],
-        icon: 'language',
-        frequency: frequencies[0],
-        active: true,
-    },
-    {
-        id: '14',
-        name: 'Spanish Review',
-        units: '30',
-        type: types[0],
-        icon: 'language',
-        frequency: frequencies[1],
-        active: true,
-    },
-    {
-        id: '15',
-        name: 'HIIT Exercise',
-        units: '2',
-        type: types[1],
-        icon: 'directions-run',
-        frequency: frequencies[0],
-        active: true,
-    },
-    {
-        id: '16',
-        name: 'DEV Articles',
-        units: '30',
-        type: types[0],
-        icon: 'laptop',
-        frequency: frequencies[0],
-        active: false,
-    },
+const today = new Date();
+const todayTimestamp = today.getTime()
+
+let yesterday = new Date();
+yesterday.setDate(yesterday.getDate() - 1)
+const yesterdayTimestamp = yesterday.getTime()
+
+export const dummyTodos = [
+  {
+    id: '200',
+    name: 'Read',
+    // units: If 1 whole todo. Else nested todo. -> if nested subtitle...
+  },
+  {
+    id: '300',
+    name: 'Spanish',
+  },
+  {
+    id: '400',
+    name: 'HIIT Exercise',
+  },
+  {
+    id: '100',
+    name: 'DEV Articles',
+  },
 ];
+
+export const dummyTodoHistory = [
+    {
+        id: '100100',
+        todoId: '200',
+        completed: true,
+        timestamp: todayTimestamp
+    },
+]
+
+// const dummyHabits = [
+//     { id: '10', name: 'Read', units: 20, type: types[0],
+//         icon: 'home',
+//         frequency: frequencies[0],
+//         active: true,
+//         // createdTimestamp, updatedTimestamp...
+//     },
+// ];
+
+// const dummyHabitHistory = [
+//     { id: '100',  habitId: '10', completedUnits: 20 * 1, timestamp: todayTimestamp }
+// ];
